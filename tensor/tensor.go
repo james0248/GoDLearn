@@ -19,7 +19,7 @@ type Tensor[T Number] struct {
 func NewZeroTensor[T Number](_shape ...int) *Tensor[T] {
 	shape := Shape(_shape)
 	dim := len(shape)
-	length, stride := shape.getLengthAndStride()
+	length, stride := shape.getSizeAndStride()
 	data := make([]T, length)
 	return &Tensor[T]{
 		data:   data,
@@ -65,12 +65,19 @@ func (t *Tensor[T]) Shape() Shape {
 	return t.shape
 }
 
-func (t *Tensor[T]) Resize(_shape ...int) (*Tensor[T], error) {
-	shape := Shape(_shape)
-	length, stride := shape.getLengthAndStride()
-	if len(t.data) != length {
-		return nil, errors.New("new shape does not match original data length")
+func (t *Tensor[T]) Reshape(_shape ...int) (*Tensor[T], error) {
+	shape, err := InferShape(len(t.data), _shape)
+	if err != nil {
+		switch err.Error() {
+		case "infer-mismatch":
+			panic("Cannot reshape tensor: original tensor size does not match with unspecified dimension")
+		case "size-mismatch":
+			panic("Cannot reshape tensor: original tensor size does not match with given shape")
+		case "infer-impossible":
+			panic("Cannot reshape tensor: more than 2 dimensions cannot be inferred")
+		}
 	}
+	stride := shape.getStride()
 
 	t.shape = shape
 	t.dim = len(shape)
