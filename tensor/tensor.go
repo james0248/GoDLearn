@@ -100,3 +100,15 @@ func (t *Tensor[T]) Copy() *Tensor[T] {
 func (t *Tensor[T]) CopyShape() *Tensor[T] {
 	return NewZeroTensor[T](t.shape...)
 }
+
+func (t *Tensor[T]) getLastTwoShapes() (int, int) {
+	return t.shape.getLastTwoShapes()
+}
+
+func (t *Tensor[T]) getLastShape() int {
+	return t.shape.getLastShape()
+}
+
+func (t *Tensor[T]) getFirstShapes(num int) Shape {
+	return t.shape.getFirstShapes(num)
+}
