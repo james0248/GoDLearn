@@ -3,7 +3,6 @@ package tensor
 import "errors"
 
 type Shape []int
-type Stride []int
 
 func InferShape(_size int, _shape []int) (Shape, error) {
 	inferredIndex := -1
@@ -60,4 +59,19 @@ func (s Shape) getSizeAndStride() (int, Stride) {
 		_stride *= s[len(s)-i-1]
 	}
 	return _stride, stride
+}
+
+func (s Shape) getFirstShapes(num int) Shape {
+	if num < 0 {
+		num = len(s) + num
+	}
+	return s[:num]
+}
+
+func (s Shape) getLastShape() int {
+	return s[len(s)-1]
+}
+
+func (s Shape) getLastTwoShapes() (int, int) {
+	return s[len(s)-2], s[len(s)-1]
 }
