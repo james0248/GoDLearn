@@ -77,12 +77,27 @@ func (t *Tensor[T]) MatMul(other *Tensor[T]) *Tensor[T] {
 	}
 
 	if t.dim == 1 {
-		t.Resize(1, -1)
+		t.Reshape(1, -1)
 	}
 	if other.dim == 1 {
-		other.Resize(-1, 1)
+		other.Reshape(-1, 1)
 	}
-	// TODO: Implement actual matrix multiplication
+	// t: n x m, other: m x l
+	firstShapes := t.getFirstShapes(-2)
+	n, m := t.getLastTwoShapes()
+	l := other.getLastShape()
 
-	return nil
+	result := NewZeroTensor[T](append(firstShapes, n, l)...)
+
+	// TODO: Implement broadcating
+
+	for i := 0; i < n; i++ {
+		for k := 0; k < l; k++ {
+			for j := 0; j < m; j++ {
+				result.data[i*l+k] += t.data[i*m+j] * other.data[j*l+k]
+			}
+		}
+	}
+
+	return result
 }
