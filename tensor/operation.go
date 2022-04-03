@@ -1,6 +1,7 @@
 package tensor
 
 import (
+	"GoDLearn/util"
 	"errors"
 	"fmt"
 	"reflect"
@@ -24,30 +25,39 @@ func (t *Tensor[T]) multipliableWith(other *Tensor[T]) error {
 		return nil
 	}
 
-	// TODO: Implement broadcasting
-	return errors.New("dimension-high")
+	tShape := util.Reverse(t.getFirstShapes(-2))
+	otherShape := util.Reverse(other.getFirstShapes(-2))
+
+	for i := 0; i < util.Min(len(tShape), len(otherShape)); i++ {
+		if tShape[i] != otherShape[i] && tShape[i] != 1 && otherShape[i] != 1 {
+			return errors.New("shape-mismatch")
+		}
+	}
+	return nil
 }
 
-// TODO: AddScaled => add times alpha
-
-func (t *Tensor[T]) Add(other *Tensor[T]) *Tensor[T] {
+func (t *Tensor[T]) AddScaled(other *Tensor[T], alpha T) *Tensor[T] {
 	err := t.operatableWith(other)
 	if err != nil {
 		switch err.Error() {
 		case "shape":
-			errString := fmt.Sprint("Cannot do operations between two tensors with different shapes: ", t.shape, other.shape)
+			errString := fmt.Sprint("Cannot add two tensors with different shapes: ", t.shape, other.shape)
 			panic(errString)
 		case "type":
-			errString := fmt.Sprint("Cannot do operations between two tensors with different types: ", reflect.TypeOf(t.data[0]), reflect.TypeOf(other.data[0]))
+			errString := fmt.Sprint("Cannot add two tensors with different types: ", reflect.TypeOf(t.data[0]), reflect.TypeOf(other.data[0]))
 			panic(errString)
 		}
 	}
 
 	result := t.CopyShape()
 	for i := range result.data {
-		result.data[i] = t.data[i] + other.data[i]
+		result.data[i] = t.data[i] + other.data[i]*alpha
 	}
 	return result
+}
+
+func (t *Tensor[T]) Add(other *Tensor[T]) *Tensor[T] {
+	return t.AddScaled(other, 1)
 }
 
 func (t *Tensor[T]) Sub(other *Tensor[T]) *Tensor[T] {
