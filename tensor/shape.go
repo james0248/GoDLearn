@@ -61,11 +61,14 @@ func (s Shape) getSizeAndStride() (int, Stride) {
 	return _stride, stride
 }
 
-func (s Shape) getFirstShapes(num int) Shape {
-	if num < 0 {
-		num = len(s) + num
+func (s Shape) getFirstShapes(dim int) Shape {
+	if dim < -len(s) || dim > len(s) {
+		panic("Dimension out of range")
 	}
-	return s[:num]
+	if dim < 0 {
+		dim = len(s) + dim
+	}
+	return s[:dim]
 }
 
 func (s Shape) getLastShape() int {
