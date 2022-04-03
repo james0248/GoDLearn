@@ -3,10 +3,14 @@ package tensor
 import (
 	"errors"
 	"fmt"
+	"golang.org/x/exp/constraints"
+	"math/rand"
+	"reflect"
+	"time"
 )
 
 type Number interface {
-	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~float32 | ~float64
+	constraints.Integer | constraints.Float
 }
 
 type Tensor[T Number] struct {
@@ -111,4 +115,20 @@ func (t *Tensor[T]) getLastShape() int {
 
 func (t *Tensor[T]) getFirstShapes(num int) Shape {
 	return t.shape.getFirstShapes(num)
+}
+
+func (t *Tensor[T]) Uniform(from, to T) {
+	source := rand.NewSource(time.Now().UnixNano())
+	rnd := rand.New(source)
+
+	switch reflect.TypeOf(from).Kind() {
+	case reflect.Float32:
+		for i := range t.data {
+			t.data[i] = T(rnd.Float32()*float32(to-from) + float32(from))
+		}
+	case reflect.Float64:
+		for i := range t.data {
+			t.data[i] = T(rnd.Float64()*float64(to-from) + float64(from))
+		}
+	}
 }
