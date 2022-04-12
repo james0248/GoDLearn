@@ -1,6 +1,7 @@
 package nn
 
 import (
+	godl "GoDLearn"
 	"GoDLearn/tensor"
 	"math"
 )
@@ -11,7 +12,7 @@ type LinearOptions struct {
 	bias bool
 }
 
-type Linear[T tensor.Number] struct {
+type Linear[T godl.Number] struct {
 	name        string
 	inFeatures  int
 	outFeatures int
@@ -25,7 +26,7 @@ func WithBias(bias bool) func(*LinearOptions) {
 	}
 }
 
-func NewLinear[T tensor.Number](inFeatures, outFeatures int, opts ...LinearFuncOpt) *Linear[T] {
+func NewLinear[T godl.Number](inFeatures, outFeatures int, opts ...LinearFuncOpt) *Linear[T] {
 	deafultOpt := &LinearOptions{bias: true}
 	for _, opt := range opts {
 		opt(deafultOpt)

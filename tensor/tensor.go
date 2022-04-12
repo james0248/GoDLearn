@@ -1,26 +1,20 @@
 package tensor
 
 import (
+	godlearn "GoDLearn"
+	"GoDLearn/util"
 	"errors"
 	"fmt"
-	"golang.org/x/exp/constraints"
-	"math/rand"
-	"reflect"
-	"time"
 )
 
-type Number interface {
-	constraints.Integer | constraints.Float
-}
-
-type Tensor[T Number] struct {
+type Tensor[T godlearn.Number] struct {
 	data   []T
 	dim    int
 	stride Stride
 	shape  Shape
 }
 
-func NewZeroTensor[T Number](_shape ...int) *Tensor[T] {
+func NewZeroTensor[T godlearn.Number](_shape ...int) *Tensor[T] {
 	shape := Shape(_shape)
 	dim := len(shape)
 	length, stride := shape.getSizeAndStride()
@@ -33,7 +27,7 @@ func NewZeroTensor[T Number](_shape ...int) *Tensor[T] {
 	}
 }
 
-func NewOneTensor[T Number](_shape ...int) *Tensor[T] {
+func NewOneTensor[T godlearn.Number](_shape ...int) *Tensor[T] {
 	t := NewZeroTensor[T](_shape...)
 	for i := range t.data {
 		t.data[i] = 1
@@ -41,7 +35,7 @@ func NewOneTensor[T Number](_shape ...int) *Tensor[T] {
 	return t
 }
 
-func NewTensor[T Number](data []T, _shape ...int) *Tensor[T] {
+func NewTensor[T godlearn.Number](data []T, _shape ...int) *Tensor[T] {
 	shape := Shape(_shape)
 	dim := len(shape)
 	stride := shape.getStride()
@@ -118,17 +112,6 @@ func (t *Tensor[T]) getFirstShapes(num int) Shape {
 }
 
 func (t *Tensor[T]) Uniform(from, to T) {
-	source := rand.NewSource(time.Now().UnixNano())
-	rnd := rand.New(source)
-
-	switch reflect.TypeOf(from).Kind() {
-	case reflect.Float32:
-		for i := range t.data {
-			t.data[i] = T(rnd.Float32()*float32(to-from) + float32(from))
-		}
-	case reflect.Float64:
-		for i := range t.data {
-			t.data[i] = T(rnd.Float64()*float64(to-from) + float64(from))
-		}
-	}
+	data := util.UniformDist[T](len(t.data), from, to)
+	t.data = data
 }
